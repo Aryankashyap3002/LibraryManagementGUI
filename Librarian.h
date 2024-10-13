@@ -37,6 +37,8 @@ public:
     static void saveIssuesToCSV(const std::vector<IssueRecord>& issues, const std::string& filename);
     static void loadIssuesFromCSV(std::vector<IssueRecord>& issues, const std::string& filename);
     static std::string generateIssueID();
+    static std::string convertUnixToDate(time_t timestamp);
+    static int countCurrentBorrowings(const std::vector<IssueRecord>& issues, const std::string& borrowerID);
 
 private:
     static const std::string PASSWORD;

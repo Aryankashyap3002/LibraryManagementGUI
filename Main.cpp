@@ -26,6 +26,15 @@ int main() {
     Student::loadStudentsFromCSV(students, studentFilename, books);
     Faculty::loadFacultyFromCSV(faculty, facultyFilename, books);
 
+    Librarian::loadBooksFromCSV(books, bookFilename);
+    Librarian::loadIssuesFromCSV(issues, issueFilename);
+
+    for (const auto& book : books) {
+        book_ids.push_back(book.book_id);
+    }
+for (const auto& book : books) {
+        book_ids.push_back(book.book_id);
+    }
     int userType;
     do {
         std::cout << "\nWelcome to the Library Management System\n";
@@ -56,6 +65,9 @@ int main() {
             default:
                 std::cout << "Invalid option. Please try again.\n";
         }
+
+        Librarian::saveBooksToCSV(books, bookFilename);
+        Librarian::saveIssuesToCSV(issues, issueFilename);
     } while (userType != 4);
 
     // Save all data before exiting

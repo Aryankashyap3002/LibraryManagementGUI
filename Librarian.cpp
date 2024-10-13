@@ -313,6 +313,19 @@ void Librarian::loadBooksFromCSV(std::vector<Book>& books, const std::string& fi
     std::cout << "Books loaded from " << filename << " successfully!" << std::endl;
 }
 
+// Add this helper function to the Librarian class
+int Librarian::countCurrentBorrowings(const std::vector<IssueRecord>& issues, const std::string& borrowerID) {
+    int count = 0;
+    for (const auto& issue : issues) {
+        if (issue.borrowerID == borrowerID && issue.returnDate == 0) {
+            count++;
+        }
+    }
+    return count;
+}
+
+
+
 
 void Librarian::issueBook(std::vector<IssueRecord>& issues, std::vector<Book>& books, 
                           const std::vector<Student>& students, const std::vector<Faculty>& faculty) {
@@ -427,10 +440,13 @@ void Librarian::viewIssuedBooks(const std::vector<IssueRecord>& issues) {
     }
 }
 
-std::string convertUnixToDate(time_t timestamp) {
-    struct tm *timeinfo = std::localtime(&timestamp);  // Convert to local time
+std::string Librarian::convertUnixToDate(time_t timestamp) {
+    if (timestamp == 0) {
+        return "";  // Return empty string for unset dates
+    }
+    struct tm *timeinfo = std::localtime(&timestamp);
     std::stringstream ss;
-    ss << std::put_time(timeinfo, "%d/%m/%Y");  // Format date as "DD/MM/YYYY"
+    ss << std::put_time(timeinfo, "%d/%m/%Y");
     return ss.str();
 }
 
@@ -441,26 +457,33 @@ void Librarian::saveIssuesToCSV(const std::vector<IssueRecord>& issues, const st
         std::cerr << "Error opening file for writing: " << filename << std::endl;
         return;
     }
-    
+
     file << "IssueID,BookID,BorrowerID,BorrowerType,BorrowDate,DueDate,ReturnDate,OverdueStatus,FineAmount,BookTitle,BorrowerName\n";
-    
+
     for (const auto& issue : issues) {
+        // Skip the row if mandatory fields are empty
+        if (issue.issueID.empty() || issue.bookID.empty() || issue.borrowerID.empty()) {
+            continue; // Skip incomplete records
+        }
+
+        // Write valid data to the CSV file
         file << issue.issueID << ","
              << issue.bookID << ","
              << issue.borrowerID << ","
              << issue.borrowerType << ","
              << convertUnixToDate(issue.borrowDate) << ","
              << convertUnixToDate(issue.dueDate) << ","
-             << (issue.returnDate ? convertUnixToDate(issue.returnDate) : "0") << ","
+             << convertUnixToDate(issue.returnDate) << ","
              << issue.overdueStatus << ","
              << issue.fineAmount << ","
-             << issue.bookTitle << ","
-             << issue.borrowerName << "\n";
+             << (issue.bookTitle.empty() ? "" : issue.bookTitle) << "," // Leave empty instead of N/A
+             << (issue.borrowerName.empty() ? "" : issue.borrowerName) << "\n"; // Leave empty instead of N/A
     }
-    
+
     file.close();
     std::cout << "Issues saved to " << filename << " successfully.\n";
 }
+
 
 void Librarian::loadIssuesFromCSV(std::vector<IssueRecord>& issues, const std::string& filename) {
     std::ifstream file(filename);
