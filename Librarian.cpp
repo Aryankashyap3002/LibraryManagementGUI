@@ -473,16 +473,35 @@ void Librarian::saveIssuesToCSV(const std::vector<IssueRecord>& issues, const st
              << issue.borrowerType << ","
              << convertUnixToDate(issue.borrowDate) << ","
              << convertUnixToDate(issue.dueDate) << ","
-             << convertUnixToDate(issue.returnDate) << ","
-             << issue.overdueStatus << ","
-             << issue.fineAmount << ","
-             << (issue.bookTitle.empty() ? "" : issue.bookTitle) << "," // Leave empty instead of N/A
-             << (issue.borrowerName.empty() ? "" : issue.borrowerName) << "\n"; // Leave empty instead of N/A
+             << (issue.returnDate != 0 ? convertUnixToDate(issue.returnDate) : "") << ","
+             << (issue.overdueStatus ? "1" : "0") << ","
+             << std::fixed << std::setprecision(2) << issue.fineAmount << ","
+             << (issue.bookTitle.empty() ? "" : issue.bookTitle) << ","
+             << (issue.borrowerName.empty() ? "" : issue.borrowerName) << "\n";
     }
 
     file.close();
     std::cout << "Issues saved to " << filename << " successfully.\n";
 }
+
+// Helper function to convert date string to Unix timestamp
+time_t convertDateToUnix(const std::string& dateStr) {
+    if (dateStr.empty()) {
+        return 0;
+    }
+
+    std::tm tm = {};
+    std::istringstream ss(dateStr);
+    ss >> std::get_time(&tm, "%d/%m/%Y");
+    
+    if (ss.fail()) {
+        std::cerr << "Invalid date format in CSV: " << dateStr << "\n";
+        return 0;
+    }
+
+    return std::mktime(&tm);
+}
+
 
 
 void Librarian::loadIssuesFromCSV(std::vector<IssueRecord>& issues, const std::string& filename) {
@@ -491,10 +510,11 @@ void Librarian::loadIssuesFromCSV(std::vector<IssueRecord>& issues, const std::s
         std::cerr << "Error opening file for reading: " << filename << std::endl;
         return;
     }
-    
+
     issues.clear();
     std::string line;
     std::getline(file, line); // Skip header
+
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string issueID, bookID, borrowerID, borrowerType, borrowDateStr, dueDateStr, returnDateStr, overdueStatusStr, fineAmountStr, bookTitle, borrowerName;
@@ -511,45 +531,27 @@ void Librarian::loadIssuesFromCSV(std::vector<IssueRecord>& issues, const std::s
         std::getline(ss, bookTitle, ',');
         std::getline(ss, borrowerName);
 
-        // Initialize default values in case of invalid data
-        long borrowDate = 0, dueDate = 0, returnDate = 0;
+        // Initialize default values
+        time_t borrowDate = 0, dueDate = 0, returnDate = 0;
         bool overdueStatus = false;
         double fineAmount = 0.0;
 
-        // Validate and convert strings to numeric values
-        if (!borrowDateStr.empty() && std::all_of(borrowDateStr.begin(), borrowDateStr.end(), ::isdigit)) {
-            borrowDate = std::stol(borrowDateStr);
-        } else {
-            std::cerr << "Invalid borrow date in CSV: " << borrowDateStr << "\n";
+        // Convert date strings to time_t
+        borrowDate = convertDateToUnix(borrowDateStr);
+        dueDate = convertDateToUnix(dueDateStr);
+        returnDate = convertDateToUnix(returnDateStr);
+
+        // Convert overdue status
+        overdueStatus = (overdueStatusStr == "1");
+
+        // Convert fine amount
+        try {
+            fineAmount = std::stod(fineAmountStr);
+        } catch (const std::invalid_argument& e) {
+            std::cerr << "Invalid fine amount in CSV: " << fineAmountStr << "\n";
         }
 
-        if (!dueDateStr.empty() && std::all_of(dueDateStr.begin(), dueDateStr.end(), ::isdigit)) {
-            dueDate = std::stol(dueDateStr);
-        } else {
-            std::cerr << "Invalid due date in CSV: " << dueDateStr << "\n";
-        }
-
-        if (!returnDateStr.empty() && std::all_of(returnDateStr.begin(), returnDateStr.end(), ::isdigit)) {
-            returnDate = std::stol(returnDateStr);
-        } else {
-            std::cerr << "Invalid return date in CSV: " << returnDateStr << "\n";
-        }
-
-        if (!overdueStatusStr.empty() && (overdueStatusStr == "1" || overdueStatusStr == "0")) {
-            overdueStatus = (overdueStatusStr == "1");
-        } else {
-            std::cerr << "Invalid overdue status in CSV: " << overdueStatusStr << "\n";
-        }
-
-        if (!fineAmountStr.empty()) {
-            try {
-                fineAmount = std::stod(fineAmountStr);
-            } catch (const std::invalid_argument& e) {
-                std::cerr << "Invalid fine amount in CSV: " << fineAmountStr << "\n";
-            }
-        }
-
-        // Create and add the issue record only if valid data is provided
+        // Create and add the issue record
         IssueRecord issue(issueID, bookID, borrowerID, borrowerType, borrowDate, dueDate, bookTitle, borrowerName);
         issue.returnDate = returnDate;
         issue.overdueStatus = overdueStatus;
@@ -558,10 +560,11 @@ void Librarian::loadIssuesFromCSV(std::vector<IssueRecord>& issues, const std::s
         issues.push_back(issue);
     }
 
-    
     file.close();
     std::cout << "Issues loaded from " << filename << " successfully.\n";
+    std::cout << "Total issues loaded: " << issues.size() << "\n";
 }
+
 
 std::string Librarian::generateIssueID() {
     static int counter = 0;

@@ -96,24 +96,58 @@ bool Student::borrowBook(std::vector<Book>& books, std::vector<IssueRecord>& iss
 
     std::cout << "Book '" << bookIt->title << "' borrowed successfully!\n";
     std::cout << "Remaining copies: " << bookIt->numberOfCopies << "\n";
+
+    
     return true;
 }
 
 
+void Student::returnBook(Book& book, std::vector<IssueRecord>& issues) {
+    // Check if the book is in the student's borrowed books list
+    auto it = std::find_if(borrowedBooks.begin(), borrowedBooks.end(), [&book](const Book& b) {
+        return b.title == book.title;
+    });
 
-
-
-void Student::returnBook(Book& book) {
-    auto it = std::find_if(borrowedBooks.begin(), borrowedBooks.end(),
-        [&book](const Book& b) { return b.title == book.title; });
     if (it != borrowedBooks.end()) {
+        // Remove the book from the borrowed list
         borrowedBooks.erase(it);
+        borrowedBooksCount--;  // Decrement the borrowed books count
         std::cout << name << " returned " << book.title << "\n";
+        
+        // Update book availability
         book.available = true;
+        book.numberOfCopies++;
+        
+        // Find the corresponding issue record
+        auto issueIt = std::find_if(issues.begin(), issues.end(), [&](const IssueRecord& issue) {
+            return issue.bookID == std::to_string(book.book_id) && issue.borrowerID == this->id && issue.returnDate == 0;
+        });
+
+        if (issueIt != issues.end()) {
+            // Set the return date and overdue status
+            issueIt->returnDate = std::time(nullptr);
+            if (issueIt->returnDate > issueIt->dueDate) {
+                issueIt->overdueStatus = true;
+                int daysOverdue = (issueIt->returnDate - issueIt->dueDate) / (24 * 60 * 60);
+                issueIt->fineAmount = daysOverdue * 1.0;
+                std::cout << "Book returned " << daysOverdue << " days late. Fine: $" << issueIt->fineAmount << "\n";
+            } else {
+                issueIt->overdueStatus = false;
+                issueIt->fineAmount = 0.0;
+            }
+            std::cout << "Issue record for " << book.title << " (ID: " << issueIt->issueID << ") has been updated.\n";
+        } else {
+            std::cout << "Issue record not found for this book.\n";
+        }
     } else {
         std::cout << "Book not found in borrowed list.\n";
     }
+
+    // Save the updated issues to the CSV file
+    Librarian::saveIssuesToCSV(issues, "issues.csv");
 }
+
+
 
 void Student::showBooks(const std::vector<Book>& books) {
     if (books.empty()) {
@@ -369,12 +403,16 @@ void Student::studentMenu(std::vector<Book>& books, std::vector<Student>& studen
                             std::getline(std::cin, bookTitle);
                             foundBook = searchBook(books, bookTitle);
                             if (foundBook) {
-                                students[currentStudentIndex].returnBook(*foundBook);
+                                students[currentStudentIndex].returnBook(*foundBook, issues);
                                 saveStudentsToCSV(students, studentFilename);
+                                Librarian::saveIssuesToCSV(issues, issueFilename);
                             }
                             break;
                         case 6:
                             students[currentStudentIndex].displayBooks();
+                            // for (int i=0; i<students.size(); i++) {
+                            //     std::cout<<students[i]<<" ";
+                            // }
                             break;
                         case 7:
                             std::cout << "Logging out...\n";

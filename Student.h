@@ -29,7 +29,7 @@ public:
     bool authenticate(const std::string& enteredPassword) const;
     void displayBooks() const;
     bool borrowBook(std::vector<Book>& books, std::vector<IssueRecord>& issues);
-    void returnBook(Book& book);
+    void returnBook(Book& book, std::vector<IssueRecord>& issues);
     int getBorrowedBooksCount() const { return borrowedBooksCount; }  // New helper function
     
     static void showBooks(const std::vector<Book>& books);
