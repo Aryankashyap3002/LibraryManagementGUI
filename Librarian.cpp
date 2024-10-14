@@ -370,7 +370,14 @@ void Librarian::issueBook(std::vector<IssueRecord>& issues, std::vector<Book>& b
     }
 
     std::time_t now = std::time(nullptr);
-    std::time_t dueDate = now + (14 * 24 * 60 * 60); // 14 days from now
+    std::time_t dueDate = now;
+
+    if (borrowerType == "Student") {
+        std::time_t dueDate = dueDate + (14 * 24 * 60 * 60); // 14 days from now
+    } else if (borrowerType == "Faculty") {
+        std::time_t dueDate = dueDate + (4 * 30 * 24 * 60 * 60); // 4 months
+    }
+    
 
     IssueRecord newIssue(generateIssueID(), bookID, borrowerID, borrowerType, 
                          now, dueDate, bookIt->title, borrowerName);

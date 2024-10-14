@@ -410,9 +410,6 @@ void Student::studentMenu(std::vector<Book>& books, std::vector<Student>& studen
                             break;
                         case 6:
                             students[currentStudentIndex].displayBooks();
-                            // for (int i=0; i<students.size(); i++) {
-                            //     std::cout<<students[i]<<" ";
-                            // }
                             break;
                         case 7:
                             std::cout << "Logging out...\n";

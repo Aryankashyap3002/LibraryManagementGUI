@@ -57,7 +57,7 @@ for (const auto& book : books) {
                 Student::studentMenu(books, students, issues, issueFilename, studentFilename);
                 break;
             case 3:
-                Faculty::facultyMenu(faculty, books, facultyFilename);
+                Faculty::facultyMenu(books, faculty, issues, issueFilename, facultyFilename);
                 break;
             case 4:
                 std::cout << "Thank you for using the Library Management System. Goodbye!\n";
