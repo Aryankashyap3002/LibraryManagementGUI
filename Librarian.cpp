@@ -408,43 +408,6 @@ void Librarian::issueBook(std::vector<IssueRecord>& issues, std::vector<Book>& b
 }
 
 
-void Librarian::returnBook(std::vector<IssueRecord>& issues, std::vector<Book>& books) {
-    std::string issueID;
-    std::cout << "Enter Issue ID: ";
-    std::cin >> issueID;
-
-    auto issueIt = std::find_if(issues.begin(), issues.end(),
-        [&issueID](const IssueRecord& i) { return i.issueID == issueID; });
-
-    if (issueIt == issues.end()) {
-        std::cout << "Issue record not found.\n";
-        return;
-    }
-
-    issueIt->returnDate = std::time(nullptr);
-
-    if (issueIt->returnDate > issueIt->dueDate) {
-        issueIt->overdueStatus = true;
-        int daysOverdue = (issueIt->returnDate - issueIt->dueDate) / (24 * 60 * 60);
-        issueIt->fineAmount = daysOverdue * 1.0; // $1 per day overdue
-    }
-
-    auto bookIt = std::find_if(books.begin(), books.end(),
-        [&](const Book& b) { return b.book_id == std::stoi(issueIt->bookID); });
-
-    if (bookIt != books.end()) {
-        bookIt->numberOfCopies++; // Increment the number of copies
-        bookIt->available = true; // Set available when copies are returned
-    }
-
-    std::cout << "Book returned successfully. ";
-    if (issueIt->overdueStatus) {
-        std::cout << "Fine amount: $" << issueIt->fineAmount;
-    }
-    std::cout << std::endl;
-}
-
-
 void Librarian::viewIssuedBooks(const std::vector<IssueRecord>& issues) {
     for (const auto& issue : issues) {
         std::cout << "Issue ID: " << issue.issueID << "\n"

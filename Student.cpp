@@ -10,6 +10,7 @@
 #include <limits>
 #include <ctime>
 #include <iomanip>
+#include <cctype> 
 
 
 bool Student::authenticate(const std::string& enteredPassword) const {
@@ -126,6 +127,7 @@ void Student::returnBook(Book& book, std::vector<IssueRecord>& issues) {
         if (issueIt != issues.end()) {
             // Set the return date and overdue status
             issueIt->returnDate = std::time(nullptr);
+            std::cout<<(issueIt->returnDate - issueIt->dueDate) / (24 * 60 * 60)<<"\n";
             if (issueIt->returnDate > issueIt->dueDate) {
                 issueIt->overdueStatus = true;
                 int daysOverdue = (issueIt->returnDate - issueIt->dueDate) / (24 * 60 * 60);
@@ -180,23 +182,59 @@ Book* Student::searchBook(std::vector<Book>& books, const std::string& bookTitle
 }
 
 void Student::studentSignUp(std::vector<Student>& students) {
-    std::string name, id, password;
-    std::cout << "Enter your name: ";
-    std::cin>>name;
+    std::string name, id;
+    bool flag1;
+
+    while(true) {
+        std::cout<<"Enter your name (Name should be all characters and all letters should be capital): ";
+        std::cin>> name;
+        flag1 = false; 
+        for (char c : name) {
+            if (!std::isalpha(c) || !std::isupper(c)) {
+                flag1 = true; // If character is not a letter or not uppercase, return false
+            }
+        }
+
+        if (!flag1) {
+            break;
+        }
+    }
     std::cout << "Enter your ID: ";
     std::cin >> id;
 
     for (const auto& student : students) {
-        if (student.name == name || student.id == id) {
+        if (student.id == id) {
             std::cout << "Student already exists! Please try logging in instead.\n";
             return;
         }
     }
+    bool flag;
+    std::string passwords;
 
-    std::cout << "Enter your password: ";
-    std::cin >> password;
+    while (true) {
+        std::cout << "Enter your password: ";
+        std::cin >> passwords;
+        flag = false;  // Reset flag for each iteration
 
-    students.emplace_back(name, id, password);
+        for (const auto& student : students) {
+            if (student.password == passwords) {
+                std::cout << "This password is already taken. Try choosing another password.\n";
+                flag = true;  // Indicate password was found in the list
+                break;
+            }
+        }
+
+    // If no existing password matches, break out of the loop
+        if (!flag) {
+            break;
+        }
+    }
+
+std::cout << "Password is unique. Proceeding...\n";
+   
+    
+
+    students.emplace_back(name, id, passwords);
     std::cout << "Signup successful!\n";
 }
 

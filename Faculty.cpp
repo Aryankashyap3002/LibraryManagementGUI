@@ -168,9 +168,23 @@ Book* Faculty::facultySearchBook(std::vector<Book>& books, const std::string& bo
 }
 
 void Faculty::facultySignUp(std::vector<Faculty>& faculty) {
-    std::string name, id, password;
-    std::cout << "Enter your name: ";
-    std::cin>>name;
+    std::string name, id;
+    bool flag1;
+
+    while(true) {
+        std::cout<<"Enter your name (Name should be all characters and all letters should be capital): ";
+        std::cin>> name;
+        flag1 = false; 
+        for (char c : name) {
+            if (!std::isalpha(c) || !std::isupper(c)) {
+                flag1 = true; // If character is not a letter or not uppercase, return false
+            }
+        }
+
+        if (!flag1) {
+            break;
+        }
+    }
     std::cout << "Enter your ID: ";
     std::cin >> id;
 
@@ -181,10 +195,29 @@ void Faculty::facultySignUp(std::vector<Faculty>& faculty) {
         }
     }
 
-    std::cout << "Enter your password: ";
-    std::cin >> password;
+    bool flag;
+    std::string passwords;
 
-    faculty.emplace_back(name, id, password);
+    while (true) {
+        std::cout << "Enter your password: ";
+        std::cin >> passwords;
+        flag = false;  // Reset flag for each iteration
+
+        for (const auto& fac : faculty) {
+            if (fac.password == passwords) {
+                std::cout << "This password is already taken. Try choosing another password.\n";
+                flag = true;  // Indicate password was found in the list
+                break;
+            }
+        }
+
+    // If no existing password matches, break out of the loop
+        if (!flag) {
+            break;
+        }
+    }
+
+    faculty.emplace_back(name, id, passwords);
     std::cout << "Signup successful!\n";
 }
 

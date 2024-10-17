@@ -32,9 +32,7 @@ int main() {
     for (const auto& book : books) {
         book_ids.push_back(book.book_id);
     }
-for (const auto& book : books) {
-        book_ids.push_back(book.book_id);
-    }
+    
     int userType;
     do {
         std::cout << "\nWelcome to the Library Management System\n";
