@@ -144,7 +144,6 @@ void Student::returnBook(Book& book, std::vector<IssueRecord>& issues) {
     }
 
     // Save the updated issues to the CSV file
-    Librarian::saveIssuesToCSV(issues, "issues.csv");
 }
 
 

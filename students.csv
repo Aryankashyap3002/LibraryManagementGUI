@@ -1,7 +1,7 @@
 Name,ID,Password,BorrowedBooks,ReturnDays
 Aryan,Ary@3002,220103014,,0
 Ankit,220102015,Ank@3002,C++|C++,0
-Aman,220103015,Ama@3002,Algebra|Javascript|Javascript,0
+Aman,220103015,Ama@3002,Algebra|Javascript,0
 Divyansh,220102014,Div@3002,,0
 Chirag,220103013,Chi@3002,Deferentiation,0
 Kush,220103019,Kus@3002,,0
@@ -13,3 +13,4 @@ Prince,220103010,Pri@3002,Algebra,0
 Akash,220101036,Aka@3002,Development|Development,0
 Rama,220101032,Ram@3002,,0
 Rahul,220103001,Rah@3002,,0
+Karambeer,220103000,Kar@3002,,0
