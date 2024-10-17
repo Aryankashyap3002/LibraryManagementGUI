@@ -66,7 +66,7 @@ for (const auto& book : books) {
                 std::cout << "Invalid option. Please try again.\n";
         }
 
-        Librarian::saveBooksToCSV(books, bookFilename);
+        Librarian::saveBooksToCSV(books, bookFilename, issues);
         Librarian::saveIssuesToCSV(issues, issueFilename);
     } while (userType != 4);
 

@@ -204,29 +204,49 @@ void Librarian::viewBorrowings(const std::vector<IssueRecord>& issues) {
     }
 }
 
+// Add this helper function to the Librarian class
+int Librarian::countCurrentBorrowings(const std::vector<IssueRecord>& issues, const std::string& borrowerID) {
+    int count = 0;
+    for (const auto& issue : issues) {
+        if (issue.borrowerID == borrowerID && issue.returnDate == 0) {
+            count++;
+        }
+    }
+    return count;
+}
 
 
+// Add this helper function to the Librarian class
+int Librarian::countCurrentBookIssued(const std::vector<IssueRecord>& issues, const std::string& bookID) {
+    int count = 0;
+    for (const auto& issue : issues) {
+        if (issue.bookID == bookID && issue.returnDate == 0) {
+            count++;  // Count how many copies are currently issued
+        }
+    }
+    return count;
+}
 
-void Librarian::saveBooksToCSV(const std::vector<Book>& books, const std::string& filename) {
+
+void Librarian::saveBooksToCSV(const std::vector<Book>& books, const std::string& filename, 
+                               std::vector<IssueRecord>& issues) {
     // First, read all existing books into a map
     std::map<int, Book> existingBooks;
     std::ifstream inFile(filename);
     std::string line;
-    
+
     if (inFile) {
         std::getline(inFile, line);  // Skip header
         while (std::getline(inFile, line)) {
             std::stringstream ss(line);
             std::string book_id_str, title, author, year_str, copies_str;
-            
+
             std::getline(ss, book_id_str, ',');
             std::getline(ss, title, ',');
             std::getline(ss, author, ',');
             std::getline(ss, year_str, ',');
             std::getline(ss, copies_str, ',');
-            
-            
-            
+
             try {
                 int book_id = std::stoi(book_id_str);
                 int year = std::stoi(year_str);
@@ -236,15 +256,23 @@ void Librarian::saveBooksToCSV(const std::vector<Book>& books, const std::string
                 std::cerr << "Error: Invalid number format in line: " << line << std::endl;
                 continue;  // Skip this line
             }
-
-            
         }
         inFile.close();
     }
 
     // Update existing books and add new ones
     for (const auto& book : books) {
-        existingBooks[book.book_id] = book;  // This will update existing or add new
+        // Check how many copies have been issued for this book
+        int number_of_copies_issued = countCurrentBookIssued(issues, std::to_string(book.book_id));
+
+        // Update the number of copies available after issuance
+        int updated_copies = book.numberOfCopies - number_of_copies_issued;
+        if (updated_copies < 0) {
+            updated_copies = 0;  // Ensure we don't go below 0
+        }
+
+        // Update the book's number of copies in the map
+        existingBooks[book.book_id] = Book(book.book_id, book.title, book.author, book.year, updated_copies);
     }
 
     // Write all books back to the file
@@ -257,7 +285,7 @@ void Librarian::saveBooksToCSV(const std::vector<Book>& books, const std::string
     // Write header
     outFile << "book_id,title,author,year,numberOfCopies\n";
 
-    // Write book data
+    // Write book data, including the updated number of copies
     for (const auto& pair : existingBooks) {
         const Book& book = pair.second;
         outFile << book.book_id << "," << book.title << "," << book.author << "," 
@@ -267,6 +295,7 @@ void Librarian::saveBooksToCSV(const std::vector<Book>& books, const std::string
     outFile.close();
     std::cout << "Books saved to " << filename << " successfully!" << std::endl;
 }
+
 
 
 
@@ -312,19 +341,6 @@ void Librarian::loadBooksFromCSV(std::vector<Book>& books, const std::string& fi
     inFile.close();
     std::cout << "Books loaded from " << filename << " successfully!" << std::endl;
 }
-
-// Add this helper function to the Librarian class
-int Librarian::countCurrentBorrowings(const std::vector<IssueRecord>& issues, const std::string& borrowerID) {
-    int count = 0;
-    for (const auto& issue : issues) {
-        if (issue.borrowerID == borrowerID && issue.returnDate == 0) {
-            count++;
-        }
-    }
-    return count;
-}
-
-
 
 
 void Librarian::issueBook(std::vector<IssueRecord>& issues, std::vector<Book>& books, 
@@ -652,7 +668,7 @@ void Librarian::librarianMenu(std::vector<Book>& books, std::vector<Student>& st
                 std::cout << "Invalid choice. Try again.\n";
         }
 
-        saveBooksToCSV(books, bookFilename);  // Save the books after modification
+        saveBooksToCSV(books, bookFilename, issues);  // Save the books after modification
         }   while (choice != 8);
         } else {
             std::cout << "Authentication failed. Exiting program.\n";

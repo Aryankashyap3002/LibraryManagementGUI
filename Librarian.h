@@ -27,7 +27,8 @@ public:
     static void displayBooks(const std::vector<Book>& books);
 
     // CSV handling functions
-    static void saveBooksToCSV(const std::vector<Book>& books, const std::string& filename);
+    static void saveBooksToCSV(const std::vector<Book>& books, const std::string& filename,
+                              std::vector<IssueRecord>& issues);
     static void loadBooksFromCSV(std::vector<Book>& books, const std::string& filename);
     static void issueBook(std::vector<IssueRecord>& issues, std::vector<Book>& books, 
                           const std::vector<Student>& students, const std::vector<Faculty>& faculty);
@@ -39,7 +40,7 @@ public:
     static std::string generateIssueID();
     static std::string convertUnixToDate(time_t timestamp);
     static int countCurrentBorrowings(const std::vector<IssueRecord>& issues, const std::string& borrowerID);
-
+    static int countCurrentBookIssued(const std::vector<IssueRecord>& issues, const std::string& bookID);
 private:
     static const std::string PASSWORD;
     
