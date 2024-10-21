@@ -32,7 +32,6 @@ public:
     static void loadBooksFromCSV(std::vector<Book>& books, const std::string& filename);
     static void issueBook(std::vector<IssueRecord>& issues, std::vector<Book>& books, 
                           const std::vector<Student>& students, const std::vector<Faculty>& faculty);
-    static void returnBook(std::vector<IssueRecord>& issues, std::vector<Book>& books);
     static void viewIssuedBooks(const std::vector<IssueRecord>& issues);
     static void viewBorrowings(const std::vector<IssueRecord>& issues);
     static void saveIssuesToCSV(const std::vector<IssueRecord>& issues, const std::string& filename);

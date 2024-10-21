@@ -1,15 +1,12 @@
 book_id,title,author,year,numberOfCopies
-403,Python,Saharia,2007,0
-1077,Matices,Sanjeev,2013,0
-1421,Java,Dennis,2008,0
-1482,Integration,Anmol,2007,3
-2219,C,Saharia,2004,0
-3821,Javascript,Divyansh,2015,3
-4731,Development,Saharia,2007,0
-4742,DP,divyansh,2017,0
-5265,Algebra,Ankit,2007,0
-5699,React,Dennis,2019,2
-6361,C++,Saharia,2004,4
-6739,Angular,Shashi,1903,0
-6922,C#,Saharia,2017,4
-8251,Deferentiation,Sanjev,2008,0
+72,ntroduction to Algorithm,Thomas H. Cormen,2009,5
+430,Python Crash Course,Eric Matthes,2015,5
+553,Design Patterns: Elements of Reusable Object-Oriented Software,Erich Gamma,1994,56
+4694,JavaScript: The Good Parts,Douglas Crockford,2008,5
+7677,Clean Code: A Handbook of Agile Software Craftsmanship,Robert C. Martin,2008,5
+8097,Head First Design Patterns,Eric Freeman,2004,5
+8390,Code Complete: A Practical Handbook of Software Construction,Steve McConnell,2004,5
+8397,You Don’t Know JS: ES6 & Beyond,Kyle Simpson,2015,5
+9544,Design Patterns: Elements of Reusable Object-Oriented Software,Richard Helm,1993,5
+9677,The C++ Programming Language,Bjarne Stroustrup,2013,5
+9757,Effective C++: 55 Specific Ways to Improve Your Programs and Designs, Scott Meyers,2005,5

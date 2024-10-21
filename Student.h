@@ -10,7 +10,8 @@
 #include <limits>
 #include "Book.h"
 #include "IssueRecord.h"
-
+// Dr.Rajkumari Bidyalakshmi Devi
+// bidyalakshmi@iiitmanipur.ac.in
 const std::string MASTER_PASSWORD = "common_password";
 const int MAX_BORROWED_BOOKS = 3;  // New constant for book limit
 
